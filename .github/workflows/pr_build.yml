@@ -1,0 +1,24 @@
+name: PR Build
+
+on: pull_request
+
+jobs:
+  checks:
+    name: Run rust checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      
+      - name: Format code
+        run: cargo fmt --all -- --check
+      - name: Lint using clippy
+        run: cargo clippy --all-features
+      - name: Audit dependencies
+        uses: rustsec/audit-check@v1.4.1
+        with:
+          # Creates a comment on the PR with details if issues were found
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Run unit tests
+        uses: cargo test --all-features
