@@ -10,7 +10,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_compile_faillures() {
+    fn test_compile_failures() {
         // We use `trybuild` to test whether the macro raises compile errors as expected
         let t = trybuild::TestCases::new();
         t.compile_fail("test/ui/invalid_item_type.rs");
