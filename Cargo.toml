@@ -3,6 +3,7 @@ name = "serde_option"
 version = "0.1.0"
 edition = "2021"
 rust-version = "1.79"
+exclude = [".github/"]
 repository = "https://github.com/Sanoma/serde-option"
 homepage = "https://github.com/Sanoma/serde-option"
 license = "MIT"
