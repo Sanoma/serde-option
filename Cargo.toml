@@ -3,13 +3,20 @@ name = "serde_option"
 version = "0.1.0"
 edition = "2021"
 rust-version = "1.79"
+exclude = [".github/"]
+repository = "https://github.com/Sanoma/serde-option"
+homepage = "https://github.com/Sanoma/serde-option"
+license = "MIT"
+description = "Library designed to make nullable & non-required fields easier to work with using the serde library"
+keywords = ["serde", "serialization", "deserialization", "optional", "nullable"]
+categories = ["Encoding"]
 
 [features]
 # When the `utoipa` feature of this crate is enabled, it enables the matching feature in the wrapped proc-macro crate
 utoipa = ["serde_option_macros/utoipa"]
 
 [dependencies]
-serde_option_macros = { path = "./serde_option_macros" }
+serde_option_macros = { path = "./serde_option_macros", version = "0.1.0" }
 
 [dev-dependencies]
 trybuild = "1"
