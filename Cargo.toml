@@ -16,7 +16,7 @@ categories = ["Encoding"]
 utoipa = ["serde_option_macros/utoipa"]
 
 [dependencies]
-serde_option_macros = { path = "./serde_option_macros" }
+serde_option_macros = { path = "./serde_option_macros", version = "0.1.0" }
 
 [dev-dependencies]
 trybuild = "1"
