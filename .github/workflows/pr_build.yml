@@ -21,4 +21,4 @@ jobs:
           # Creates a comment on the PR with details if issues were found
           token: ${{ secrets.GITHUB_TOKEN }}
       - name: Run unit tests
-        uses: cargo test --all-features
+        run: cargo test --all-features
