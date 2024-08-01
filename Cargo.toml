@@ -4,9 +4,9 @@ version = "0.1.0"
 edition = "2021"
 rust-version = "1.79"
 repository = "https://github.com/Sanoma/serde-option"
+homepage = "https://github.com/Sanoma/serde-option"
 license = "MIT"
 description = "Library designed to make nullable & non-required fields easier to work with using the serde library"
-readme = "README.md"
 
 [features]
 # When the `utoipa` feature of this crate is enabled, it enables the matching feature in the wrapped proc-macro crate
