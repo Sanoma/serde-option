@@ -1,0 +1,5 @@
+error: `#[not_required]` cannot be used in combination with `#[serde(skip)]`
+ --> test/ui/skip_not_required.rs:9:5
+  |
+9 |     #[serde(skip)]
+  |     ^

@@ -1,0 +1,16 @@
+[package]
+name = "serde_option_macros"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.79"
+
+[features]
+utoipa = []
+
+[lib]
+proc-macro = true
+
+[dependencies]
+syn = { version = "2", features = ["full"] }
+quote = "1"
+proc-macro2 = "1"

@@ -1,0 +1,5 @@
+error: `#[not_required]` may only be used on fields of type `Option<T>`.
+ --> test/ui/non_option_not_required.rs:6:5
+  |
+6 |     x: u64,
+  |     ^

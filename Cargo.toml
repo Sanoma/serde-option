@@ -1,0 +1,19 @@
+[package]
+name = "serde_option"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.79"
+
+[features]
+# When the `utoipa` feature of this crate is enabled, it enables the matching feature in the wrapped proc-macro crate
+utoipa = ["serde_option_macros/utoipa"]
+
+[dependencies]
+serde_option_macros = { path = "./serde_option_macros" }
+
+[dev-dependencies]
+trybuild = "1"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+serde_with = "3.9.0"
+utoipa = { version = "4.2.3" }

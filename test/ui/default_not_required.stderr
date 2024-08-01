@@ -1,0 +1,5 @@
+error: `#[not_required]` cannot be used in combination with `#[serde(default)]`
+ --> test/ui/default_not_required.rs:9:5
+  |
+9 |     #[serde(default)]
+  |     ^

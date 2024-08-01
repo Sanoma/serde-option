@@ -1,0 +1,5 @@
+error: `#[nullable]` cannot be used in combination with `#[serde(skip)]`
+ --> test/ui/skip_nullable.rs:9:5
+  |
+9 |     #[serde(skip)]
+  |     ^
