@@ -21,6 +21,6 @@ jobs:
           # Creates a comment on the PR with details if issues were found
           token: ${{ secrets.GITHUB_TOKEN }}
       - name: Run unit tests
-        run: cargo test --workspace
+        run: cargo test --workspace --all-features
       - name: Build documentation
         run: cargo doc --workspace --all-features

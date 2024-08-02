@@ -2,7 +2,6 @@ pub use serde_option_macros::serde_option;
 
 // This module structure exists to allow unit tests. Currently it's not possible
 // to run unit tests inside `proc-macro` crates, i.e. crates that export procedural macros.
-
 #[cfg(test)]
 mod tests {
     use serde_json::json;
@@ -24,10 +23,9 @@ mod tests {
     #[test]
     fn test_roundtrip_serialization() {
         use serde::{Deserialize, Serialize};
-        use utoipa::ToSchema;
 
         #[serde_option]
-        #[derive(Deserialize, Serialize, ToSchema, PartialEq, Debug)]
+        #[derive(Deserialize, Serialize, PartialEq, Debug)]
         struct Example {
             #[nullable]
             nullable: Option<u64>,
@@ -65,10 +63,9 @@ mod tests {
     #[test]
     fn test_default_fields() {
         use serde::{Deserialize, Serialize};
-        use utoipa::ToSchema;
 
         #[serde_option]
-        #[derive(Deserialize, Serialize, ToSchema, PartialEq, Debug)]
+        #[derive(Deserialize, Serialize, PartialEq, Debug)]
         struct Example {
             #[serde(default = "default_fn")]
             #[nullable]
@@ -112,10 +109,9 @@ mod tests {
     #[test]
     fn test_skipped() {
         use serde::{Deserialize, Serialize};
-        use utoipa::ToSchema;
 
         #[serde_option]
-        #[derive(Deserialize, Serialize, ToSchema, PartialEq, Debug)]
+        #[derive(Deserialize, Serialize, PartialEq, Debug)]
         struct Example {
             #[serde(skip)]
             skipped: u64,
@@ -128,5 +124,50 @@ mod tests {
             "{}",
             "Skipped fields should not be serialized"
         )
+    }
+
+    #[cfg(feature = "utoipa")]
+    #[test]
+    fn test_utoipa_features() {
+        use serde::{Deserialize, Serialize};
+        use utoipa::openapi::{RefOr, Schema};
+        use utoipa::ToSchema;
+
+        #[serde_option(utoipa)]
+        #[derive(Deserialize, Serialize, ToSchema, PartialEq, Debug)]
+        struct Example {
+            #[nullable]
+            nullable_field: Option<u64>,
+            #[not_required]
+            not_required_field: Option<u64>,
+        }
+
+        let (_, schema) = Example::schema();
+        let RefOr::T(Schema::Object(object)) = schema else {
+            panic!("schema should be an object")
+        };
+        let Some(RefOr::T(Schema::Object(nullable_field))) =
+            object.properties.get("nullable_field")
+        else {
+            panic!("nullable_field should exist and be an object")
+        };
+        let Some(RefOr::T(Schema::Object(not_required_field))) =
+            object.properties.get("not_required_field")
+        else {
+            panic!("not_required_field should exist and be an object")
+        };
+        assert!(
+            nullable_field.nullable,
+            "nullable_field should be marked as nullable"
+        );
+        assert!(
+            !not_required_field.nullable,
+            "not_required_field should not be marked as nullable"
+        );
+        assert_eq!(
+            &object.required,
+            &["nullable_field"],
+            "only nullable_field should be marked as required"
+        );
     }
 }
