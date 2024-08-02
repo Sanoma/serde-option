@@ -1,5 +1,5 @@
 //! This module *should not* be imported directly. It is designed to be a helper library
-//! for exporting the [`serde_option`] procedural macro.
+//! for exporting the [`macro@serde_option`] procedural macro.
 //!
 //! Code adapted from the `serde_with_macros` library:
 //! <https://docs.rs/serde_with_macros/3.8.3/src/serde_with_macros/lib.rs.html>
