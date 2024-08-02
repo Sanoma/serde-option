@@ -8,6 +8,9 @@ See the documentation for the `#[serde_option]` macro for detailed usage.
 The following data model:
 
 ```rust
+use serde::Serialize;
+use serde_option::serde_option;
+
 #[serde_option] // <-- Put this before the #[derive]
 #[derive(Serialize)]
 struct Data {
@@ -20,7 +23,7 @@ struct Data {
     nullable_and_not_required_field: Option<Option<String>>,
     #[nullable]
     #[serde(default)]
-    nullable_with_default: Option<String>
+    nullable_with_default: Option<String>,
     #[serde(skip)]
     skipped_field: Option<bool>,
 }
@@ -29,6 +32,9 @@ struct Data {
 ... is equivalent to the following struct definition:
 
 ```rust
+use serde::Serialize;
+use serde_option::serde_option;
+
 #[derive(Serialize)]
 struct Data {
     #[serde(with = "Option")]
@@ -40,7 +46,7 @@ struct Data {
     #[serde(with = "serde_with::rust::double_option")]
     nullable_and_not_required_field: Option<Option<String>>,
     #[serde(default)]
-    nullable_with_default: Option<String>
+    nullable_with_default: Option<String>,
     #[serde(skip)]
     skipped_field: Option<bool>,
 }

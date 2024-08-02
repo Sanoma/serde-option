@@ -1,3 +1,5 @@
+#![doc = include_str!("../README.md")]
+
 pub use serde_option_macros::serde_option;
 
 // This module structure exists to allow unit tests. Currently it's not possible

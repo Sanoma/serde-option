@@ -3,7 +3,6 @@ members = ["serde_option_macros"]
 resolver = "2"
 
 [workspace.package]
-rust-version = "1.79"
 repository = "https://github.com/Sanoma/serde-option"
 homepage = "https://github.com/Sanoma/serde-option"
 license = "MIT"
