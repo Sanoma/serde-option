@@ -1,5 +1,5 @@
 //! Code adapted from the `serde_with_macros` library:
-//! https://docs.rs/serde_with_macros/3.8.3/src/serde_with_macros/lib.rs.html
+//! <https://docs.rs/serde_with_macros/3.8.3/src/serde_with_macros/lib.rs.html>
 //! which is licensed under the MIT license.
 //!
 //! Copyright (c) 2015
@@ -48,7 +48,9 @@ use syn::{
 ///
 /// # Example
 ///
-/// ```rust
+/// ```
+/// # use serde::Serialize;
+/// # use serde_option_macros::serde_option;
 /// #[serde_option] // <-- Put this before the #[derive]
 /// #[derive(Serialize)]
 /// struct Data {
@@ -61,7 +63,7 @@ use syn::{
 ///     nullable_and_not_required_field: Option<Option<String>>,
 ///     #[nullable]
 ///     #[serde(default)]
-///     nullable_with_default: Option<String>
+///     nullable_with_default: Option<String>,
 ///     #[serde(skip)]
 ///     skipped_field: Option<bool>,
 /// }
@@ -69,7 +71,9 @@ use syn::{
 ///
 /// This is equivalent to the following struct definition:
 ///
-/// ```rust
+/// ```
+/// # use serde::Serialize;
+/// # use serde_option_macros::serde_option;
 /// #[derive(Serialize)]
 /// struct Data {
 ///     #[serde(with = "Option")]
@@ -81,7 +85,7 @@ use syn::{
 ///     #[serde(with = "serde_with::rust::double_option")]
 ///     nullable_and_not_required_field: Option<Option<String>>,
 ///     #[serde(default)]
-///     nullable_with_default: Option<String>
+///     nullable_with_default: Option<String>,
 ///     #[serde(skip)]
 ///     skipped_field: Option<bool>,
 /// }
@@ -96,19 +100,21 @@ use syn::{
 ///
 /// # Limitations
 ///
-/// You must have the `serde_with` crate installed for the expansion to work.
+/// You must have the [`serde_with`] crate installed for the expansion to work.
 ///
 /// Certain combinations of attributes are invalid and will raise a compile error:
 /// * Using either `#[nullable]` or `#[not_required]` together with `#[serde(skip)]`
 /// * Using `#[serde(default)]` with `#[not_required]`
 ///
-/// The `serde_option` only works if the type is called `Option`,
+/// The [`macro@serde_option`] only works if the type is called `Option`,
 /// `std::option::Option`, or `core::option::Option`. Type aliasing an [`Option`] and giving it
 /// another name, will cause a compile error. This cannot be supported, as proc-macros run
 /// before type checking, thus it is not possible to determine if a type alias refers to an
 /// [`Option`].
 ///
-/// ```rust
+/// ```compile_fail
+/// # use serde::Serialize;
+/// # use serde_option_macros::serde_option;
 /// type MyOption<T> = Option<T>;
 ///
 /// #[serde_option]
@@ -122,7 +128,9 @@ use syn::{
 /// Likewise, if you define a type and name it `Option`, the `#[serde(...)]` attributes will
 /// be added as if for an `Option<T>` field, but may silently behave incorrectly or raise a compile error.
 ///
-/// ```
+/// ```compile_fail
+/// # use serde::Serialize;
+/// # use serde_option_macros::serde_option;
 /// use std::vec::Vec as Option;
 ///
 /// #[serde_option]
@@ -132,6 +140,9 @@ use syn::{
 ///     a: Option<String>, // bad!
 /// }
 /// ```
+///
+/// [`serde`]: https://docs.rs/serde
+/// [`serde_with`]: https://docs.rs/serde_with
 #[proc_macro_attribute]
 pub fn serde_option(
     _attr: proc_macro::TokenStream,

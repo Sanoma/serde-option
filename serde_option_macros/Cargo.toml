@@ -2,7 +2,13 @@
 name = "serde_option_macros"
 version = "0.1.0"
 edition = "2021"
-rust-version = "1.79"
+
+repository.workspace = true
+homepage.workspace = true
+license.workspace = true
+description.workspace = true
+keywords.workspace = true
+categories.workspace = true
 
 [features]
 utoipa = []
@@ -14,3 +20,7 @@ proc-macro = true
 syn = { version = "2", features = ["full"] }
 quote = "1"
 proc-macro2 = "1"
+
+[dev-dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_with = "3.9.0"
