@@ -30,9 +30,9 @@
 use proc_macro2::Span;
 use quote::quote;
 use syn::{
-    parse_quote, spanned::Spanned, AngleBracketedGenericArguments, Error, Field, Fields,
-    GenericArgument, ItemEnum, ItemStruct, PathArguments, QSelf, Type, TypeGroup, TypeParen,
-    TypePath,
+    meta, parse::Parser, parse_quote, spanned::Spanned, AngleBracketedGenericArguments, Error,
+    Field, Fields, GenericArgument, ItemEnum, ItemStruct, PathArguments, QSelf, Type, TypeGroup,
+    TypeParen, TypePath,
 };
 
 /// Process `#[nullable]` and `#[not_required]` annotations in [`Option`] fields and
@@ -93,10 +93,23 @@ use syn::{
 ///
 /// # Features
 ///
-/// When compiling with the `utoipa` feature, this will also add
+/// When compiling with the `utoipa` feature, this macro can also add
 /// `#[schema(required = true)]` to required + nullable fields, and
 /// `#[schema(schema_with = ...)]` to optional + non-nullable fields.
 ///
+/// ```
+/// # use serde::Serialize;
+/// # use serde_option_macros::serde_option;
+/// # use utoipa::ToSchema;
+/// #[serde_option(utoipa)]
+/// #[derive(Serialize, ToSchema)]
+/// struct Data {
+///     #[nullable]
+///     nullable_field: Option<String>,
+///     #[not_required]
+///     not_required_field: Option<String>,
+/// }
+/// ```
 ///
 /// # Limitations
 ///
@@ -145,16 +158,31 @@ use syn::{
 /// [`serde_with`]: https://docs.rs/serde_with
 #[proc_macro_attribute]
 pub fn serde_option(
-    _attr: proc_macro::TokenStream,
+    attr: proc_macro::TokenStream,
     item: proc_macro::TokenStream,
 ) -> proc_macro::TokenStream {
-    let res = process_items(item).unwrap_or_else(|err| err.to_compile_error());
+    let mut utoipa_flag = false;
+    let attr_parsed = meta::parser(|meta| {
+        if meta.path.is_ident("utoipa") {
+            utoipa_flag = true;
+            Ok(())
+        } else {
+            Err(meta.error("Unsupported property in macro input"))
+        }
+    })
+    .parse(attr);
+    let res = attr_parsed
+        .and_then(|_| process_items(item, utoipa_flag))
+        .unwrap_or_else(|err| err.to_compile_error());
     proc_macro::TokenStream::from(res)
 }
 
 /// Applies the `#[nullable]` and `#[not_required]` transformations on a field. This will only
 /// work for fields whose type is statically assumed to be `Option<T>`
-fn process_optional_field(field: &mut Field) -> Result<(), String> {
+fn process_optional_field(
+    field: &mut Field,
+    #[allow(unused_variables)] utoipa_flag: bool,
+) -> Result<(), String> {
     // Detect and remove `#[nullable]` and `#[not_required]` attributes from the attribute list
     let mut nullable = false;
     let mut not_required = false;
@@ -195,9 +223,11 @@ fn process_optional_field(field: &mut Field) -> Result<(), String> {
             });
             #[cfg(feature = "utoipa")]
             {
-                field.attrs.push(parse_quote! {
-                    #[schema(nullable = false)]
-                })
+                if utoipa_flag {
+                    field.attrs.push(parse_quote! {
+                        #[schema(nullable = false)]
+                    })
+                }
             }
         } else if nullable && !not_required {
             field.attrs.push(parse_quote! {
@@ -205,9 +235,11 @@ fn process_optional_field(field: &mut Field) -> Result<(), String> {
             });
             #[cfg(feature = "utoipa")]
             {
-                field.attrs.push(parse_quote! {
-                    #[schema(required = true)]
-                })
+                if utoipa_flag {
+                    field.attrs.push(parse_quote! {
+                        #[schema(required = true)]
+                    })
+                }
             }
         } else if nullable && not_required {
             field.attrs.push(parse_quote! {
@@ -318,35 +350,44 @@ trait IteratorExt {
 impl<I> IteratorExt for I where I: Iterator<Item = Result<(), Error>> + Sized {}
 
 /// Handle a single struct or a single enum variant
-fn process_fields(fields: &mut Fields) -> Result<(), Error> {
+fn process_fields(fields: &mut Fields, utoipa_flag: bool) -> Result<(), Error> {
     match fields {
         // simple, no fields, do nothing
         Fields::Unit => Ok(()),
         Fields::Named(ref mut fields) => fields
             .named
             .iter_mut()
-            .map(|field| process_optional_field(field).map_err(|err| Error::new(field.span(), err)))
+            .map(|field| {
+                process_optional_field(field, utoipa_flag)
+                    .map_err(|err| Error::new(field.span(), err))
+            })
             .merge_errors(),
         Fields::Unnamed(ref mut fields) => fields
             .unnamed
             .iter_mut()
-            .map(|field| process_optional_field(field).map_err(|err| Error::new(field.span(), err)))
+            .map(|field| {
+                process_optional_field(field, utoipa_flag)
+                    .map_err(|err| Error::new(field.span(), err))
+            })
             .merge_errors(),
     }
 }
 
 /// Apply function on every field of structs or enums
-fn process_items(input: proc_macro::TokenStream) -> Result<proc_macro2::TokenStream, Error> {
+fn process_items(
+    input: proc_macro::TokenStream,
+    utoipa_flag: bool,
+) -> Result<proc_macro2::TokenStream, Error> {
     // Process the top level fields in structs
     if let Ok(mut input) = syn::parse::<ItemStruct>(input.clone()) {
-        process_fields(&mut input.fields)?;
+        process_fields(&mut input.fields, utoipa_flag)?;
         Ok(quote!(#input))
     // Process the fields inside enum variants
     } else if let Ok(mut input) = syn::parse::<ItemEnum>(input) {
         input
             .variants
             .iter_mut()
-            .map(|variant| process_fields(&mut variant.fields))
+            .map(|variant| process_fields(&mut variant.fields, utoipa_flag))
             .merge_errors()?;
         Ok(quote!(#input))
     } else {

@@ -13,7 +13,7 @@ categories = ["Encoding"]
 
 [package]
 name = "serde_option"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
 exclude = [".github/"]
 
@@ -29,11 +29,11 @@ categories.workspace = true
 utoipa = ["serde_option_macros/utoipa"]
 
 [dependencies]
-serde_option_macros = { path = "./serde_option_macros", version = "0.1.0" }
+serde_option_macros = { path = "./serde_option_macros", version = "0.2.0" }
 
 [dev-dependencies]
 trybuild = "1"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 serde_with = "3.9.0"
-utoipa = { version = "4.2.3" }
+utoipa = "4.2.3"
