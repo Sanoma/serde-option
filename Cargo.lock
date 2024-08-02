@@ -356,6 +356,8 @@ version = "0.1.0"
 dependencies = [
  "proc-macro2",
  "quote",
+ "serde",
+ "serde_with",
  "syn 2.0.72",
 ]
 

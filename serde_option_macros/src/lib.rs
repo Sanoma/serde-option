@@ -48,7 +48,9 @@ use syn::{
 ///
 /// # Example
 ///
-/// ```rust
+/// ```
+/// # use serde::Serialize;
+/// # use serde_option_macros::serde_option;
 /// #[serde_option] // <-- Put this before the #[derive]
 /// #[derive(Serialize)]
 /// struct Data {
@@ -61,7 +63,7 @@ use syn::{
 ///     nullable_and_not_required_field: Option<Option<String>>,
 ///     #[nullable]
 ///     #[serde(default)]
-///     nullable_with_default: Option<String>
+///     nullable_with_default: Option<String>,
 ///     #[serde(skip)]
 ///     skipped_field: Option<bool>,
 /// }
@@ -69,7 +71,9 @@ use syn::{
 ///
 /// This is equivalent to the following struct definition:
 ///
-/// ```rust
+/// ```
+/// # use serde::Serialize;
+/// # use serde_option_macros::serde_option;
 /// #[derive(Serialize)]
 /// struct Data {
 ///     #[serde(with = "Option")]
@@ -81,7 +85,7 @@ use syn::{
 ///     #[serde(with = "serde_with::rust::double_option")]
 ///     nullable_and_not_required_field: Option<Option<String>>,
 ///     #[serde(default)]
-///     nullable_with_default: Option<String>
+///     nullable_with_default: Option<String>,
 ///     #[serde(skip)]
 ///     skipped_field: Option<bool>,
 /// }
@@ -108,7 +112,9 @@ use syn::{
 /// before type checking, thus it is not possible to determine if a type alias refers to an
 /// [`Option`].
 ///
-/// ```rust
+/// ```compile_fail
+/// # use serde::Serialize;
+/// # use serde_option_macros::serde_option;
 /// type MyOption<T> = Option<T>;
 ///
 /// #[serde_option]
@@ -122,7 +128,9 @@ use syn::{
 /// Likewise, if you define a type and name it `Option`, the `#[serde(...)]` attributes will
 /// be added as if for an `Option<T>` field, but may silently behave incorrectly or raise a compile error.
 ///
-/// ```
+/// ```compile_fail
+/// # use serde::Serialize;
+/// # use serde_option_macros::serde_option;
 /// use std::vec::Vec as Option;
 ///
 /// #[serde_option]
