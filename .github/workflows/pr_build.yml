@@ -22,3 +22,5 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
       - name: Run unit tests
         run: cargo test --workspace --all-features
+      - name: Build documentation
+        run: cargo doc --workspace --all-features

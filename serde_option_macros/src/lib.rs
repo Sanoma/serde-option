@@ -1,5 +1,5 @@
 //! Code adapted from the `serde_with_macros` library:
-//! https://docs.rs/serde_with_macros/3.8.3/src/serde_with_macros/lib.rs.html
+//! <https://docs.rs/serde_with_macros/3.8.3/src/serde_with_macros/lib.rs.html>
 //! which is licensed under the MIT license.
 //!
 //! Copyright (c) 2015
@@ -100,13 +100,13 @@ use syn::{
 ///
 /// # Limitations
 ///
-/// You must have the `serde_with` crate installed for the expansion to work.
+/// You must have the [`serde_with`] crate installed for the expansion to work.
 ///
 /// Certain combinations of attributes are invalid and will raise a compile error:
 /// * Using either `#[nullable]` or `#[not_required]` together with `#[serde(skip)]`
 /// * Using `#[serde(default)]` with `#[not_required]`
 ///
-/// The `serde_option` only works if the type is called `Option`,
+/// The [`macro@serde_option`] only works if the type is called `Option`,
 /// `std::option::Option`, or `core::option::Option`. Type aliasing an [`Option`] and giving it
 /// another name, will cause a compile error. This cannot be supported, as proc-macros run
 /// before type checking, thus it is not possible to determine if a type alias refers to an
@@ -140,6 +140,9 @@ use syn::{
 ///     a: Option<String>, // bad!
 /// }
 /// ```
+///
+/// [`serde`]: https://docs.rs/serde
+/// [`serde_with`]: https://docs.rs/serde_with
 #[proc_macro_attribute]
 pub fn serde_option(
     _attr: proc_macro::TokenStream,
