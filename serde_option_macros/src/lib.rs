@@ -222,24 +222,20 @@ fn process_optional_field(
                     with = "serde_with::rust::unwrap_or_skip")]
             });
             #[cfg(feature = "utoipa")]
-            {
-                if utoipa_flag {
-                    field.attrs.push(parse_quote! {
-                        #[schema(nullable = false)]
-                    })
-                }
+            if utoipa_flag {
+                field.attrs.push(parse_quote! {
+                    #[schema(nullable = false)]
+                })
             }
         } else if nullable && !not_required {
             field.attrs.push(parse_quote! {
                 #[serde(with = "Option")]
             });
             #[cfg(feature = "utoipa")]
-            {
-                if utoipa_flag {
-                    field.attrs.push(parse_quote! {
-                        #[schema(required = true)]
-                    })
-                }
+            if utoipa_flag {
+                field.attrs.push(parse_quote! {
+                    #[schema(required = true)]
+                })
             }
         } else if nullable && not_required {
             field.attrs.push(parse_quote! {
