@@ -13,14 +13,20 @@ jobs:
       
       - name: Format code
         run: cargo fmt --all -- --check
-      - name: Lint using clippy
-        run: cargo clippy --workspace --all-features
       - name: Audit dependencies
         uses: rustsec/audit-check@v1.4.1
         with:
           # Creates a comment on the PR with details if issues were found
           token: ${{ secrets.GITHUB_TOKEN }}
-      - name: Run unit tests
+      - name: Lint using clippy (default)
+        run: cargo clippy --workspace
+      - name: Lint using clippy (all features)
+        run: cargo clippy --workspace --all-features
+      
+      - name: Run unit tests (default)
+        run: cargo test --workspace
+      - name: Run unit tests (all features)
         run: cargo test --workspace --all-features
+      
       - name: Build documentation
         run: cargo doc --workspace --all-features
