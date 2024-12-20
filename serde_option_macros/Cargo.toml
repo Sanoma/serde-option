@@ -24,4 +24,4 @@ proc-macro2 = "1"
 [dev-dependencies]
 serde = { version = "1", features = ["derive"] }
 serde_with = "3.11.0"
-utoipa = "4.2.3"
+utoipa = "5.3.0"
