@@ -132,8 +132,9 @@ mod tests {
     #[test]
     fn test_utoipa_features() {
         use serde::{Deserialize, Serialize};
+        use utoipa::openapi::schema::SchemaType;
         use utoipa::openapi::{RefOr, Schema};
-        use utoipa::ToSchema;
+        use utoipa::{PartialSchema, ToSchema};
 
         #[serde_option(utoipa)]
         #[derive(Deserialize, Serialize, ToSchema, PartialEq, Debug)]
@@ -144,7 +145,7 @@ mod tests {
             not_required_field: Option<u64>,
         }
 
-        let (_, schema) = Example::schema();
+        let schema = Example::schema();
         let RefOr::T(Schema::Object(object)) = schema else {
             panic!("schema should be an object")
         };
@@ -158,14 +159,20 @@ mod tests {
         else {
             panic!("not_required_field should exist and be an object")
         };
+
+        let SchemaType::Array(a) = &nullable_field.schema_type else {
+            panic!("nullable_field should be of array type")
+        };
         assert!(
-            nullable_field.nullable,
-            "nullable_field should be marked as nullable"
+            a.contains(&utoipa::openapi::Type::Null),
+            "nullable_field should contain null in array type"
         );
-        assert!(
-            !not_required_field.nullable,
-            "not_required_field should not be marked as nullable"
-        );
+
+        let SchemaType::Type(utoipa::openapi::Type::Integer) = &not_required_field.schema_type
+        else {
+            panic!("schema type should be integer")
+        };
+
         assert_eq!(
             &object.required,
             &["nullable_field"],
