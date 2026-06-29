@@ -114,6 +114,22 @@ use syn::{
 /// }
 /// ```
 ///
+/// When compiling with the `ts` feature, this macro can also add
+/// `#[ts(as = ...)]` to required + nullable fields, and
+/// `#[schema(schema_with = ...)]` to optional + non-nullable fields.
+///
+/// # use serde::Serialize;
+/// # use serde_option_macros::serde_option;
+/// # use ts_rs::TS;
+/// #[serde_option(ts)]
+/// #[derive(Serialize, TS)]
+/// struct Data {
+///     #[nullable]
+///     nullable_field: Option<String>,
+///     #[not_required]
+///     not_required_field: Option<String>,
+/// }
+///
 /// # Limitations
 ///
 /// You must have the [`serde_with`] crate installed for the expansion to work.
@@ -165,9 +181,13 @@ pub fn serde_option(
     item: proc_macro::TokenStream,
 ) -> proc_macro::TokenStream {
     let mut utoipa_flag = false;
+    let mut ts_flag = false;
     let attr_parsed = meta::parser(|meta| {
         if meta.path.is_ident("utoipa") {
             utoipa_flag = true;
+            Ok(())
+        } else if meta.path.is_ident("ts") {
+            ts_flag = true;
             Ok(())
         } else {
             Err(meta.error("Unsupported property in macro input"))
@@ -175,7 +195,7 @@ pub fn serde_option(
     })
     .parse(attr);
     let res = attr_parsed
-        .and_then(|_| process_items(item, utoipa_flag))
+        .and_then(|_| process_items(item, utoipa_flag, ts_flag))
         .unwrap_or_else(|err| err.to_compile_error());
     proc_macro::TokenStream::from(res)
 }
@@ -185,6 +205,7 @@ pub fn serde_option(
 fn process_optional_field(
     field: &mut Field,
     #[allow(unused_variables)] utoipa_flag: bool,
+    #[allow(unused_variables)] ts_flag: bool,
 ) -> Result<(), String> {
     // Detect and remove `#[nullable]` and `#[not_required]` attributes from the attribute list
     let mut nullable = false;
@@ -200,7 +221,7 @@ fn process_optional_field(
             true
         }
     });
-    // `inner_type` is unused when the `"utoipa"` feature is disabled
+    // `inner_type` is unused when the `"utoipa"` and `"ts"` features are disabled
     #[allow(unused_variables)]
     if let Some(inner_type) = get_std_option(&field.ty) {
         // Detect `#[serde(skip)]` and `#[serde(default)]` attributes
@@ -230,6 +251,13 @@ fn process_optional_field(
                     #[schema(nullable = false)]
                 })
             }
+            #[cfg(feature = "ts")]
+            if ts_flag {
+                let typestring = dbg!(quote!(#inner_type).to_string());
+                field.attrs.push(parse_quote! {
+                    #[ts(as = #typestring)]
+                })
+            }
         } else if nullable && !not_required {
             field.attrs.push(parse_quote! {
                 #[serde(with = "Option")]
@@ -240,11 +268,26 @@ fn process_optional_field(
                     #[schema(required = true)]
                 })
             }
+            #[cfg(feature = "ts")]
+            if ts_flag {
+                let outer_type = &field.ty;
+                let typestring = dbg!(quote!(#outer_type).to_string());
+                field.attrs.push(parse_quote! {
+                    #[ts(as = #typestring)]
+                })
+            }
         } else if nullable && not_required {
             field.attrs.push(parse_quote! {
                 #[serde(default, skip_serializing_if = "Option::is_none",
                 with = "serde_with::rust::double_option")]
             });
+            #[cfg(feature = "ts")]
+            if ts_flag {
+                let typestring = dbg!(quote!(#inner_type).to_string());
+                field.attrs.push(parse_quote! {
+                    #[ts(as = #typestring)]
+                })
+            }
         }
     } else {
         // Error on use of `#[nullable]` or `#[not_required]` on non-Option fields
@@ -349,7 +392,7 @@ trait IteratorExt {
 impl<I> IteratorExt for I where I: Iterator<Item = Result<(), Error>> + Sized {}
 
 /// Handle a single struct or a single enum variant
-fn process_fields(fields: &mut Fields, utoipa_flag: bool) -> Result<(), Error> {
+fn process_fields(fields: &mut Fields, utoipa_flag: bool, ts_flag: bool) -> Result<(), Error> {
     match fields {
         // simple, no fields, do nothing
         Fields::Unit => Ok(()),
@@ -357,7 +400,7 @@ fn process_fields(fields: &mut Fields, utoipa_flag: bool) -> Result<(), Error> {
             .named
             .iter_mut()
             .map(|field| {
-                process_optional_field(field, utoipa_flag)
+                process_optional_field(field, utoipa_flag, ts_flag)
                     .map_err(|err| Error::new(field.span(), err))
             })
             .merge_errors(),
@@ -365,7 +408,7 @@ fn process_fields(fields: &mut Fields, utoipa_flag: bool) -> Result<(), Error> {
             .unnamed
             .iter_mut()
             .map(|field| {
-                process_optional_field(field, utoipa_flag)
+                process_optional_field(field, utoipa_flag, ts_flag)
                     .map_err(|err| Error::new(field.span(), err))
             })
             .merge_errors(),
@@ -376,17 +419,18 @@ fn process_fields(fields: &mut Fields, utoipa_flag: bool) -> Result<(), Error> {
 fn process_items(
     input: proc_macro::TokenStream,
     utoipa_flag: bool,
+    ts_flag: bool,
 ) -> Result<proc_macro2::TokenStream, Error> {
     // Process the top level fields in structs
     if let Ok(mut input) = syn::parse::<ItemStruct>(input.clone()) {
-        process_fields(&mut input.fields, utoipa_flag)?;
+        process_fields(&mut input.fields, utoipa_flag, ts_flag)?;
         Ok(quote!(#input))
     // Process the fields inside enum variants
     } else if let Ok(mut input) = syn::parse::<ItemEnum>(input) {
         input
             .variants
             .iter_mut()
-            .map(|variant| process_fields(&mut variant.fields, utoipa_flag))
+            .map(|variant| process_fields(&mut variant.fields, utoipa_flag, ts_flag))
             .merge_errors()?;
         Ok(quote!(#input))
     } else {
