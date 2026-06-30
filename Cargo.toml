@@ -12,7 +12,7 @@ categories = ["Encoding"]
 
 [package]
 name = "serde_option"
-version = "0.3.0"
+version = "0.4.0"
 edition = "2021"
 exclude = [".github/"]
 
@@ -24,11 +24,12 @@ keywords.workspace = true
 categories.workspace = true
 
 [features]
-# When the `utoipa` feature of this crate is enabled, it enables the matching feature in the wrapped proc-macro crate
+# When features of this crate are enabled, they enables the matching feature in the wrapped proc-macro crate
 utoipa = ["serde_option_macros/utoipa"]
+ts = ["serde_option_macros/ts"]
 
 [dependencies]
-serde_option_macros = { path = "./serde_option_macros", version = "0.3.0" }
+serde_option_macros = { path = "./serde_option_macros", version = "0.4.0" }
 
 [dev-dependencies]
 trybuild = "1"
@@ -36,3 +37,4 @@ serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 serde_with = "3.15.1"
 utoipa = { version = "5.4.0", features = ["debug"] }
+ts-rs = "12"

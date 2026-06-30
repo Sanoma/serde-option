@@ -1,6 +1,6 @@
 [package]
 name = "serde_option_macros"
-version = "0.3.0"
+version = "0.4.0"
 edition = "2021"
 
 repository.workspace = true
@@ -9,9 +9,9 @@ license.workspace = true
 description.workspace = true
 keywords.workspace = true
 categories.workspace = true
-
 [features]
 utoipa = []
+ts = []
 
 [lib]
 proc-macro = true
@@ -25,3 +25,4 @@ proc-macro2 = "1"
 serde = { version = "1", features = ["derive"] }
 serde_with = "3.15.1"
 utoipa = "5.4.0"
+ts-rs = "12"
