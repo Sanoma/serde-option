@@ -253,6 +253,7 @@ fn process_optional_field(
             }
             #[cfg(feature = "ts")]
             if ts_flag {
+                // Treat a field marked as x: Option<T> as x ?: T
                 let typestring = quote!(#inner_type).to_string();
                 field.attrs.push(parse_quote! {
                     #[ts(as = #typestring)]
@@ -270,6 +271,7 @@ fn process_optional_field(
             }
             #[cfg(feature = "ts")]
             if ts_flag {
+                // Treat a field marked as x: Option<T> as x : T | null
                 let outer_type = &field.ty;
                 let typestring = quote!(#outer_type).to_string();
                 field.attrs.push(parse_quote! {
@@ -283,6 +285,7 @@ fn process_optional_field(
             });
             #[cfg(feature = "ts")]
             if ts_flag {
+                // Treat a field marked as x: Option<Option<T>> as x?: T | null
                 let typestring = quote!(#inner_type).to_string();
                 field.attrs.push(parse_quote! {
                     #[ts(as = #typestring)]
