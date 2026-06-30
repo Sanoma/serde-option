@@ -253,7 +253,7 @@ fn process_optional_field(
             }
             #[cfg(feature = "ts")]
             if ts_flag {
-                let typestring = dbg!(quote!(#inner_type).to_string());
+                let typestring = quote!(#inner_type).to_string();
                 field.attrs.push(parse_quote! {
                     #[ts(as = #typestring)]
                 })
@@ -271,7 +271,7 @@ fn process_optional_field(
             #[cfg(feature = "ts")]
             if ts_flag {
                 let outer_type = &field.ty;
-                let typestring = dbg!(quote!(#outer_type).to_string());
+                let typestring = quote!(#outer_type).to_string();
                 field.attrs.push(parse_quote! {
                     #[ts(as = #typestring)]
                 })
@@ -283,7 +283,7 @@ fn process_optional_field(
             });
             #[cfg(feature = "ts")]
             if ts_flag {
-                let typestring = dbg!(quote!(#inner_type).to_string());
+                let typestring = quote!(#inner_type).to_string();
                 field.attrs.push(parse_quote! {
                     #[ts(as = #typestring)]
                 })
